@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MusicClient</string>
+    <string name="bind_service">Bind Service</string>
+    <string name="status_bound">Status: Bound</string>
+    <string name="status_unbound">Status: Unbound</string>
+    <string name="unbind_service">Unbind Service</string>
 </resources>

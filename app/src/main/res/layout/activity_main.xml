@@ -13,7 +13,7 @@
         android:layout_marginStart="26dp"
         android:layout_marginEnd="26dp"
         android:layout_marginBottom="4dp"
-        android:text="Bind Service"
+        android:text="@string/bind_service"
         app:layout_constraintBottom_toTopOf="@+id/recyclerView"
         app:layout_constraintEnd_toStartOf="@+id/txtBindStatus"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +23,7 @@
         android:id="@+id/btnServiceUnbind"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Unbind Service"
+        android:text="@string/unbind_service"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/txtBindStatus"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +32,7 @@
         android:id="@+id/txtBindStatus"
         android:layout_width="108dp"
         android:layout_height="45dp"
-        android:text="Status: Unbound"
+        android:text="@string/status_unbound"
         app:layout_constraintStart_toEndOf="@+id/btnServiceBind"
         app:layout_constraintTop_toTopOf="parent" />
 

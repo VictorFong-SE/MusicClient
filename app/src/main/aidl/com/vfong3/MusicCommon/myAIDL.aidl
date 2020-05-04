@@ -1,5 +1,5 @@
 // myAIDL.aidl
-package com.vfong3.musicclient;
+package com.vfong3.MusicCommon;
 
 import android.os.Bundle;
 

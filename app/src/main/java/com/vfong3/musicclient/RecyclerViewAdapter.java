@@ -16,18 +16,13 @@ import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>
 {
+    private ArrayList<Song> songs;
 
-    private ArrayList<String> titles;
-    private ArrayList<String> artists;
-    private ArrayList<Bitmap> images;
     private Context context;
 
-    public RecyclerViewAdapter(Context context, ArrayList<String> titles, ArrayList<String> artists, ArrayList<Bitmap> images)
+    public RecyclerViewAdapter(Context context, ArrayList songs)
     {
-        this.titles = titles;
-        this.artists = artists;
-        this.images = images;
-        this.context = context;
+        this.songs = songs;
     }
 
     @NonNull
@@ -41,9 +36,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position)
     {
-        holder.img.setImageBitmap(images.get(position));
-        holder.title.setText(titles.get(position));
-        holder.artist.setText(artists.get(position));
+        holder.img.setImageBitmap(songs.get(position).getCover());
+        holder.title.setText(songs.get(position).getTitle());
+        holder.artist.setText(songs.get(position).getArtist());
 
         holder.parentLayout.setOnClickListener(new View.OnClickListener()
         {
