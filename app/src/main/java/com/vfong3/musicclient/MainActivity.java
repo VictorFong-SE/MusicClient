@@ -4,10 +4,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,9 +20,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.vfong3.MusicCommon.myAIDL;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
+    private final static String TAG = "TEKn";
+
     private Button btnServiceBind;
     private Button btnServiceUnbind;
     private TextView txtStatus;
@@ -69,19 +74,21 @@ public class MainActivity extends AppCompatActivity
             {
                 if (!status)
                 {
-                    Intent intent = new Intent(myAIDL.class.getName());
-                    ResolveInfo info = getPackageManager().resolveService(intent, 0);
-                    assert info != null;
-                    intent.setComponent(new ComponentName(info.serviceInfo.packageName, info.serviceInfo.name));
+                    Log.d(TAG, "onclick listener hit for bind.");
+                    Intent intent = new Intent("com.vfong3.Services.MusicCentralService");
+                    Intent explicitIntent = convertIntent(intent,getApplicationContext());
+                    if (explicitIntent != null)
+                        status = bindService(explicitIntent, serviceConnection, Context.BIND_AUTO_CREATE);
 
-                    status = bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
                     if (status)
                     {
+                        Log.d(TAG, "bind completed and status true");
                         txtStatus.setText(R.string.status_bound);
                         Bundle bundle = new Bundle();
                         // populate recycler from service
                         try
                         {
+                            Log.d(TAG, "trying aidl command");
                             bundle = aidl.retrieveAllInfo();
                         } catch (RemoteException e)
                         {
@@ -114,7 +121,7 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    protected  void onPause()
+    protected void onPause()
     {
         super.onPause();
 
@@ -135,5 +142,22 @@ public class MainActivity extends AppCompatActivity
     public static void playSong(int position)
     {
         //todo
+    }
+
+    //algorithm inspired by stack overflow to convert implicit intents to explicit for binding
+    public static Intent convertIntent(Intent implicitIntent, Context context)
+    {
+        PackageManager pm = context.getPackageManager();
+        List<ResolveInfo> resolveInfoList = pm.queryIntentServices(implicitIntent, 0);
+
+        if (resolveInfoList.size() != 1)
+        {
+            return null;
+        }
+        ResolveInfo serviceInfo = resolveInfoList.get(0);
+        ComponentName component = new ComponentName(serviceInfo.serviceInfo.packageName, serviceInfo.serviceInfo.name);
+        Intent explicitIntent = new Intent(implicitIntent);
+        explicitIntent.setComponent(component);
+        return explicitIntent;
     }
 }
