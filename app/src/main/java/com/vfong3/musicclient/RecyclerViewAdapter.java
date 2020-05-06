@@ -1,7 +1,7 @@
 package com.vfong3.musicclient;
 
 import android.content.Context;
-import android.graphics.Bitmap;
+import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,15 +12,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>
 {
-    private ArrayList<Song> songs;
+    private List<Song> songs;
 
     private Context context;
 
-    public RecyclerViewAdapter(Context context, ArrayList songs)
+    public RecyclerViewAdapter(Context context, List<Song> songs)
     {
         this.songs = songs;
     }
@@ -45,7 +46,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             @Override
             public void onClick(View v)
             {
-                MainActivity.playSong(position);
+                try
+                {
+                    MainActivity.playSong(position);
+                } catch (IOException | RemoteException e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
     }

@@ -1,11 +1,17 @@
 package com.vfong3.musicclient;
 
+
+import com.vfong3.musiccommon.myAIDL;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -17,10 +23,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.vfong3.MusicCommon.myAIDL;
-
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity
 {
@@ -31,10 +37,10 @@ public class MainActivity extends AppCompatActivity
     private TextView txtStatus;
     boolean status;
 
-    private ArrayList<Song> songs;
     private RecyclerView recyclerView;
 
-    private myAIDL aidl;
+    private static myAIDL aidl = null;
+    private static Context thisContext;
 
     private final ServiceConnection serviceConnection = new ServiceConnection()
     {
@@ -60,6 +66,7 @@ public class MainActivity extends AppCompatActivity
         txtStatus = findViewById(R.id.txtBindStatus);
         btnServiceBind = findViewById(R.id.btnServiceBind);
         btnServiceUnbind = findViewById(R.id.btnServiceUnbind);
+        thisContext = getApplicationContext();
     }
 
     @Override
@@ -75,7 +82,7 @@ public class MainActivity extends AppCompatActivity
                 if (!status)
                 {
                     Log.d(TAG, "onclick listener hit for bind.");
-                    Intent intent = new Intent("com.vfong3.Services.MusicCentralService");
+                    Intent intent = new Intent("com.vfong3.musiccentral.myAidl");
                     Intent explicitIntent = convertIntent(intent,getApplicationContext());
                     if (explicitIntent != null)
                         status = bindService(explicitIntent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -84,19 +91,19 @@ public class MainActivity extends AppCompatActivity
                     {
                         Log.d(TAG, "bind completed and status true");
                         txtStatus.setText(R.string.status_bound);
-                        Bundle bundle = new Bundle();
+
+                        List<Song> songs = Collections.synchronizedList(new ArrayList<Song>());
                         // populate recycler from service
                         try
                         {
                             Log.d(TAG, "trying aidl command");
-                            bundle = aidl.retrieveAllInfo();
+                            songs = aidl.retrieveAllInfo();
                         } catch (RemoteException e)
                         {
                             e.printStackTrace();
                         }
 
-                        songs = bundle.getParcelableArrayList("songs");
-                        initRecycler();
+                        initRecycler(songs);
                     }
                     else
                     {
@@ -132,16 +139,21 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public void initRecycler()
+    public void initRecycler(List<Song> songs)
     {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, songs);
     }
 
 
-    public static void playSong(int position)
+    public static void playSong(int position) throws IOException, RemoteException
     {
-        //todo
+        Uri myUri = Uri.parse( aidl.retrieveURL(position));
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setDataSource(MainActivity.thisContext, myUri);
+        mediaPlayer.prepare();
+        mediaPlayer.start();
     }
 
     //algorithm inspired by stack overflow to convert implicit intents to explicit for binding
